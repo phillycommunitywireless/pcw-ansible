@@ -1,5 +1,5 @@
 - name: Configure EdgeOS router
-  hosts: edgerouters
+  hosts: myhosts
   roles:
     - role: common 
       tags: 
@@ -7,9 +7,9 @@
     - role: networks
       # tags: 
     - role: firewall
-      # tags: 
+      tags: security
     - role: ssh_restrict
-      # tags:  
+      tags: security
     - role: save
       tags:
         - always
