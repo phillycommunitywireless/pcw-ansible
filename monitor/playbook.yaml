@@ -4,23 +4,25 @@
   roles:
     - node_exporter
 
-- name: install Prometheus
-  hosts: servers
+- name: install VictoriaMetrics
+  hosts: victoriametrics
   become: yes
   roles:
-  - prometheus
+  - victoriametrics
 
 - name: Install and configure Grafana
-  hosts: servers
+  hosts: grafana
   become: true
   vars:
     grafana_admin_password: "{{ vault_grafana_admin_password }}"
-    grafana_domain: "grafana.mycompany.com"
+    victoriametrics_url: "http://{{ hostvars[groups['victoriametrics'][0]].ansible_host }}:{{ hostvars[groups['victoriametrics'][0]].victoriametrics_port }}"
+    grafana_domain: "grafana.vpc.phillycommunitywireless.org"
     grafana_datasources:
-      - name: Prometheus
+      # Url reads inventory and gets victoriametrics host
+      - name: VictoriaMetrics
         type: prometheus
         access: proxy
-        url: http://localhost:9090
+        url: "{{ victoriametrics_url }}"
         is_default: true
         editable: false
     grafana_plugins:

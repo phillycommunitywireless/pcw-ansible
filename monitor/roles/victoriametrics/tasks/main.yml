@@ -1,0 +1,83 @@
+- name: create victoriametrics group
+  group:
+    name: "{{ victoriametrics_group }}"
+    system: true
+- name: create victoriametrics user
+  user:
+    name: "{{ victoriametrics_user }}"
+    group: "{{ victoriametrics_group }}"
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
+- name: create victoriametrics config dir
+  file:
+    path: "{{ victoriametrics_dir_configuration }}"
+    state: directory
+    owner: root
+    group: "{{ victoriametrics_group }}"
+    mode: 0750
+- name: create victoriametrics data dir
+  file:
+    path: "{{ victoriametrics_dir_data }}"
+    state: directory
+    owner: "{{ victoriametrics_user }}"
+    group: "{{ victoriametrics_group }}"
+    mode: 0750
+
+- name: check if victoriametrics exist
+  stat:
+    path: "{{ victoriametrics_bin }}"
+  register: __check_victoriametrics_present
+- name: if victoriametrics exist get version
+  command: "{{ victoriametrics_bin }} -version"
+  when: __check_victoriametrics_present.stat.exists
+  changed_when: false
+  failed_when: false
+  register: __get_victoriametrics_version
+
+# Unpack victoriametrics from tarball
+- name: download and unpack victoriametrics
+  unarchive:
+    src: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v{{ victoriametrics_version }}/victoria-metrics-linux-{{ victoriametrics_arch }}-v{{ victoriametrics_version }}.tar.gz"
+    dest: "{{ victoriametrics_bin | dirname }}"
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+    extra_opts:
+      - --no-same-owner
+  when: not __check_victoriametrics_present.stat.exists
+        or victoriametrics_version not in (__get_victoriametrics_version.stdout | default(''))
+  notify: restart_victoriametrics
+
+- name: victoriametrics args
+  template:
+    src: victoriametrics.j2
+    dest: /etc/default/victoriametrics
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart_victoriametrics
+- name: victoriametrics scrape configuration file
+  template:
+    src: scrape.yml.j2
+    dest: "{{ victoriametrics_dir_configuration }}/scrape.yml"
+    mode: 0640
+    owner: root
+    group: "{{ victoriametrics_group }}"
+  notify: reload_victoriametrics
+- name: install service
+  template:
+    src: victoriametrics.service.j2
+    dest: /etc/systemd/system/victoriametrics.service
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart_victoriametrics
+- meta: flush_handlers
+- name: start victoriametrics
+  systemd:
+    name: victoriametrics
+    state: started
+    enabled: yes
+    daemon_reload: yes

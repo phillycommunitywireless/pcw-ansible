@@ -1,0 +1,16 @@
+#jinja2: lstrip_blocks: "True"
+# Managed by Ansible - do not edit by hand
+{% set scrape_configs = victoriametrics_extra_scrape_configs | list %}
+{% if victoriametrics_node_exporter and victoriametrics_node_exporter_group %}
+{%   set node_targets = [] %}
+{%   for server in groups[victoriametrics_node_exporter_group] | default([]) %}
+{%     set _ = node_targets.append((hostvars[server].ansible_host | default(server)) ~ ':' ~ victoriametrics_node_exporter_port) %}
+{%   endfor %}
+{%   set _ = scrape_configs.append({
+       'job_name': 'node',
+       'scrape_interval': victoriametrics_node_exporter_scrape_interval,
+       'metrics_path': '/metrics',
+       'static_configs': [{'targets': node_targets}],
+     }) %}
+{% endif %}
+{{ victoriametrics_var_config | combine({'scrape_configs': scrape_configs}) | to_nice_yaml(indent=2) }}

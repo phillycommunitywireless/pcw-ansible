@@ -4,7 +4,7 @@ PCW Ansible playbooks and collections
 | Collection  | Description |
 | ----------- | ----------- |
 | edgeos      | Playbooks for managing ERX/edgeos router configuration       |
-| monitor   | prom, grafana playbooks |
+| monitor   | victoriametrics, grafana playbooks |
 
 # How to use 
 * Install python deps

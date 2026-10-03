@@ -1,0 +1,17 @@
+[Unit]
+Description=VictoriaMetrics Version {{ victoriametrics_version }}
+After=network-online.target
+Wants=network-online.target
+[Service]
+User={{ victoriametrics_user }}
+Group={{ victoriametrics_group }}
+Type=simple
+EnvironmentFile=/etc/default/victoriametrics
+ExecStart={{ victoriametrics_bin }} $ARGS
+Restart=always
+RestartSec=5
+# flushing in-memory data to disk on shutdown can take a while on large datasets
+TimeoutStopSec=60
+LimitNOFILE=65536
+[Install]
+WantedBy=multi-user.target

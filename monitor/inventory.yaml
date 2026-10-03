@@ -1,8 +1,16 @@
-myhosts:
-  servers:
-    hosts:
-      monitor_01:
-        # ansible_host: <vpc-private-ip>
+all:
+  children:
+    servers:
+      children:
+        victoriametrics:
+          hosts:
+            metrics_01:
+              ansible_host: 10.0.0.3
+        grafana:
+          hosts:
+            grafana_01:
+              ansible_host: 10.0.0.4
+      vars:
+        ansible_connection: ssh
         # ansible_user: <user>
         # ansible_ssh_private_key_file: <path>
-        ansible_connection: ssh

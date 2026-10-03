@@ -32,10 +32,10 @@ grafana_smtp_from_address: "grafana@example.com"
 
 # Datasources to provision
 grafana_datasources:
-  - name: Prometheus
+  - name: VictoriaMetrics
     type: prometheus
     access: proxy
-    url: http://localhost:9090
+    url: http://localhost:8428
     is_default: true
     editable: false
 

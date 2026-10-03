@@ -1,0 +1,15 @@
+- name: restart_victoriametrics
+  systemd:
+    name: victoriametrics
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+- name: reload_victoriametrics
+  uri:
+    url: "http://localhost:{{ victoriametrics_port }}/-/reload"
+    method: POST
+    status_code: 200
+  register: __victoriametrics_reload
+  until: __victoriametrics_reload is succeeded
+  retries: 5
+  delay: 2

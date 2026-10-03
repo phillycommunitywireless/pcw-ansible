@@ -1,0 +1,27 @@
+victoriametrics_version: "1.153.0"
+victoriametrics_arch: amd64
+victoriametrics_bin: /usr/local/bin/victoria-metrics-prod
+victoriametrics_user: victoriametrics
+victoriametrics_group: "{{ victoriametrics_user }}"
+victoriametrics_dir_configuration: "/etc/victoriametrics"
+victoriametrics_dir_data: /var/lib/victoriametrics
+victoriametrics_port: 8428
+victoriametrics_listen_addr: ":{{ victoriametrics_port }}"
+victoriametrics_retention_time: "365d"
+victoriametrics_scrape_interval: "30s"
+victoriametrics_self_scrape_interval: "30s"
+victoriametrics_env: "production"
+
+victoriametrics_node_exporter: true
+victoriametrics_node_exporter_group: "servers"
+victoriametrics_node_exporter_port: 9100
+victoriametrics_node_exporter_scrape_interval: "15s"
+
+# extra Prometheus-format scrape jobs, appended after the node job
+victoriametrics_extra_scrape_configs: []
+
+victoriametrics_var_config:
+  global:
+    scrape_interval: "{{ victoriametrics_scrape_interval }}"
+    external_labels:
+      env: '{{ victoriametrics_env }}'
